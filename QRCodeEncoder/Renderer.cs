@@ -91,9 +91,9 @@ namespace QRCodeEncoder
 
                 var pixMap = bitmap2.PeekPixels();
                 var pngImage2 = pixMap.Encode(new SKPngEncoderOptions());
-                var stream2 = pngImage2.AsStream();
-                stream2.Position = 0;
-                return stream2;
+                var stream = pngImage2.AsStream();
+                stream.Position = 0;
+                return stream;
             }
         }
 
@@ -101,11 +101,11 @@ namespace QRCodeEncoder
         {
             var size = Encoder.Markers[ver - 1].Last() + 7;
             var img = new byte[size, size];
-            for (int i2 = 0; i2 < size; i2++)
+            for (int y = 0; y < size; y++)
             {
-                for (int i1 = 0; i1 < size; i1++)
+                for (int x = 0; x < size; x++)
                 {
-                    img[i1, i2] = 2;
+                    img[x, y] = 2;
                 }
             }
 
@@ -272,7 +272,7 @@ namespace QRCodeEncoder
         private byte[,] AddData(byte[] data, byte[,] img1, int maskNum)
         {
             var img = img1.Clone() as byte[,];
-            string bitString = string.Join("", data.Select(x1 => Convert.ToString(x1, 2).PadLeft(8, '0')).ToArray());
+            var bitString = string.Join("", data.Select(x1 => Convert.ToString(x1, 2).PadLeft(8, '0')).ToArray());
 
             var x = img.GetUpperBound(0);
             var y = img.GetUpperBound(0);

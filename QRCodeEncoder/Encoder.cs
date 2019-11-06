@@ -71,6 +71,8 @@ namespace QRCodeEncoder
             strBits = strBitsCopy.PadRight(
                 (int)Math.Ceiling((decimal)strBitsCopy.Length / 8) * 8, '0');
 
+            // дополняем последовательность до длины выбранной версии qr кода
+
             List<int> versionList;
             switch (cLevel)
             {
@@ -88,8 +90,6 @@ namespace QRCodeEncoder
                     versionList = VersionH;
                     break;
             }
-
-            // дополняем последовательность до длины выбранной версии qr кода
 
             var b1 = "11101100";
             var b2 = "00010001";
@@ -125,7 +125,10 @@ namespace QRCodeEncoder
 
             for (int i = 0; i < blocksCount; i++)
             {
-                blocks[i] = dataBytes.Skip(blockLen.Take(i).Sum()).Take(blockLen[i]).ToArray();
+                blocks[i] = dataBytes
+                    .Skip(blockLen.Take(i).Sum())
+                    .Take(blockLen[i])
+                    .ToArray();
             }
 
             // создание байтов коррекции
@@ -330,7 +333,6 @@ namespace QRCodeEncoder
                     else if (ver <= 26) dataLen = 16;
                     else dataLen = 16;
 
-                    //var bytes = Math.Ceiling((decimal)length / 8);
                     return Convert.ToString(length, 2).PadLeft(dataLen, '0');
             }
         }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,13 +8,11 @@
   <ItemGroup>
     <None Remove="back2.jpg" />
     <None Remove="back5.jpg" />
-    <None Remove="sky3.jpg" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="back2.jpg" />
     <EmbeddedResource Include="back5.jpg" />
-    <EmbeddedResource Include="sky3.jpg" />
   </ItemGroup>
 
   <ItemGroup>
