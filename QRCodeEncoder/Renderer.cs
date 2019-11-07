@@ -339,29 +339,12 @@ namespace QRCodeEncoder
         /// <summary>
         /// Код маски и уровня коррекции
         /// </summary>
-        private byte[,] AddCorrectionAndMaskCode(byte[,] img1, int maskNum, CorrectionLevel correctionLevel)
+        private byte[,] AddCorrectionAndMaskCode(byte[,] img1, int maskNum, CorrectionLevel cLevel)
         {
             var img = img1.Clone() as byte[,];
-
-            List<string> maskCodes;
-            switch (correctionLevel)
-            {
-                case CorrectionLevel.L:
-                    maskCodes = MaskCodesL;
-                    break;
-                case CorrectionLevel.M:
-                default:
-                    maskCodes = MaskCodesM;
-                    break;
-                case CorrectionLevel.Q:
-                    maskCodes = MaskCodesQ;
-                    break;
-                case CorrectionLevel.H:
-                    maskCodes = MaskCodesH;
-                    break;
-            }
-
+            var maskCodes = MaskCodes[cLevel];
             var counter = 0;
+
             for (int i = 0; i < 6; i++)
             {
                 img[i, 8] = maskCodes[maskNum][counter] == '1' ? (byte)1 : (byte)0;
@@ -592,114 +575,65 @@ namespace QRCodeEncoder
         /// <summary>
         /// Расположение выравнивающих узоров по версии
         /// </summary>
-        public static readonly List<int[]> Markers = new List<int[]>
+        private static readonly int[][] Markers = new int[][]
         {
-            new int[] { 14 },
-            new int[] { 18 },
-            new int[] { 22 },
-            new int[] { 26 },
-            new int[] { 30 },
-            new int[] { 34 },
-            new int[] { 6, 22, 38 },
-            new int[] { 6, 24, 42 },
-            new int[] { 6, 26, 46 },
-            new int[] { 6, 28, 50 },
-            new int[] { 6, 30, 54 },
-            new int[] { 6, 32, 58 },
-            new int[] { 6, 34, 62 },
-            new int[] { 6, 26, 46, 66 },
-            new int[] { 6, 26, 48, 70 },
-            new int[] { 6, 26, 50, 74 },
-            new int[] { 6, 30, 54, 78 },
-            new int[] { 6, 30, 56, 82 },
-            new int[] { 6, 30, 58, 86 },
-            new int[] { 6, 34, 62, 90 },
-            new int[] { 6, 28, 50, 72, 94 },
-            new int[] { 6, 26, 50, 74, 98 },
-            new int[] { 6, 30, 54, 78, 102 },
-            new int[] { 6, 28, 54, 80, 106 },
-            new int[] { 6, 32, 58, 84, 110 },
-            new int[] { 6, 30, 58, 86, 114 },
-            new int[] { 6, 34, 62, 90, 118 },
-            new int[] { 6, 26, 50, 74, 98, 122 },
-            new int[] { 6, 30, 54, 78, 102, 126 },
-            new int[] { 6, 26, 52, 78, 104, 130 },
-            new int[] { 6, 30, 56, 82, 108, 134 },
-            new int[] { 6, 34, 60, 86, 112, 138 },
-            new int[] { 6, 30, 58, 86, 114, 142 },
-            new int[] { 6, 34, 62, 90, 118, 146 },
-            new int[] { 6, 30, 54, 78, 102, 126, 150 },
-            new int[] { 6, 24, 50, 76, 102, 128, 154 },
-            new int[] { 6, 28, 54, 80, 106, 132, 158 },
-            new int[] { 6, 32, 58, 84, 110, 136, 162 },
-            new int[] { 6, 26, 54, 82, 110, 138, 166 },
-            new int[] { 6, 30, 58, 86, 114, 142, 170 },
+            new [] { 14 },
+            new [] { 18 },
+            new [] { 22 },
+            new [] { 26 },
+            new [] { 30 },
+            new [] { 34 },
+            new [] { 6, 22, 38 },
+            new [] { 6, 24, 42 },
+            new [] { 6, 26, 46 },
+            new [] { 6, 28, 50 },
+            new [] { 6, 30, 54 },
+            new [] { 6, 32, 58 },
+            new [] { 6, 34, 62 },
+            new [] { 6, 26, 46, 66 },
+            new [] { 6, 26, 48, 70 },
+            new [] { 6, 26, 50, 74 },
+            new [] { 6, 30, 54, 78 },
+            new [] { 6, 30, 56, 82 },
+            new [] { 6, 30, 58, 86 },
+            new [] { 6, 34, 62, 90 },
+            new [] { 6, 28, 50, 72, 94 },
+            new [] { 6, 26, 50, 74, 98 },
+            new [] { 6, 30, 54, 78, 102 },
+            new [] { 6, 28, 54, 80, 106 },
+            new [] { 6, 32, 58, 84, 110 },
+            new [] { 6, 30, 58, 86, 114 },
+            new [] { 6, 34, 62, 90, 118 },
+            new [] { 6, 26, 50, 74, 98, 122 },
+            new [] { 6, 30, 54, 78, 102, 126 },
+            new [] { 6, 26, 52, 78, 104, 130 },
+            new [] { 6, 30, 56, 82, 108, 134 },
+            new [] { 6, 34, 60, 86, 112, 138 },
+            new [] { 6, 30, 58, 86, 114, 142 },
+            new [] { 6, 34, 62, 90, 118, 146 },
+            new [] { 6, 30, 54, 78, 102, 126, 150 },
+            new [] { 6, 24, 50, 76, 102, 128, 154 },
+            new [] { 6, 28, 54, 80, 106, 132, 158 },
+            new [] { 6, 32, 58, 84, 110, 136, 162 },
+            new [] { 6, 26, 54, 82, 110, 138, 166 },
+            new [] { 6, 30, 58, 86, 114, 142, 170 },
         };
 
         /// <summary>
-        /// Код маски и уровня коррекции, уровень коррекции L
+        /// Код маски и уровня коррекции
         /// </summary>
-        public static readonly List<string> MaskCodesL = new List<string>
+        private static readonly Dictionary<CorrectionLevel, string[]> MaskCodes = new Dictionary<CorrectionLevel, string[]>
         {
-            "111011111000100",
-            "111001011110011",
-            "111110110101010",
-            "111100010011101",
-            "110011000101111",
-            "110001100011000",
-            "110110001000001",
-            "110100101110110"
-        };
-
-        /// <summary>
-        /// Код маски и уровня коррекции, уровень коррекции M
-        /// </summary>
-        public static readonly List<string> MaskCodesM = new List<string>
-        {
-            "101010000010010",
-            "101000100100101",
-            "101111001111100",
-            "101101101001011",
-            "100010111111001",
-            "100000011001110",
-            "100111110010111",
-            "100101010100000"
-        };
-
-        /// <summary>
-        /// Код маски и уровня коррекции, уровень коррекции Q
-        /// </summary>
-        public static readonly List<string> MaskCodesQ = new List<string>
-        {
-            "011010101011111",
-            "011000001101000",
-            "011111100110001",
-            "011101000000110",
-            "010010010110100",
-            "010000110000011",
-            "010111011011010",
-            "010101111101101"
-        };
-
-        /// <summary>
-        /// Код маски и уровня коррекции, уровень коррекции H
-        /// </summary>
-        public static readonly List<string> MaskCodesH = new List<string>
-        {
-            "001011010001001",
-            "001001110111110",
-            "001110011100111",
-            "001100111010000",
-            "000011101100010",
-            "000001001010101",
-            "000110100001100",
-            "000100000111011"
+            { CorrectionLevel.L, new [] { "111011111000100", "111001011110011", "111110110101010", "111100010011101", "110011000101111", "110001100011000", "110110001000001", "110100101110110" } },
+            { CorrectionLevel.M, new [] { "101010000010010", "101000100100101", "101111001111100", "101101101001011", "100010111111001", "100000011001110", "100111110010111", "100101010100000" } },
+            { CorrectionLevel.Q, new [] { "011010101011111", "011000001101000", "011111100110001", "011101000000110", "010010010110100", "010000110000011", "010111011011010", "010101111101101" } },
+            { CorrectionLevel.H, new [] { "001011010001001", "001001110111110", "001110011100111", "001100111010000", "000011101100010", "000001001010101", "000110100001100", "000100000111011" } },
         };
 
         /// <summary>
         /// Коды версий
         /// </summary>
-        public static readonly List<string> VersionCodes = new List<string>
+        private static readonly string[] VersionCodes = new []
         {
             "",
             "",

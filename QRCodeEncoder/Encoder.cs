@@ -13,7 +13,7 @@ namespace QRCodeEncoder
         /// <summary>
         /// Способ кодирования
         /// </summary>
-        public enum EncodingType
+        private enum EncodingType
         {
             /// <summary>
             /// Цифровое кодирование
@@ -76,23 +76,7 @@ namespace QRCodeEncoder
 
             // дополняем последовательность до длины выбранной версии qr кода
 
-            List<int> versionList;
-            switch (cLevel)
-            {
-                case CorrectionLevel.L:
-                    versionList = VersionL;
-                    break;
-                case CorrectionLevel.M:
-                default:
-                    versionList = VersionM;
-                    break;
-                case CorrectionLevel.Q:
-                    versionList = VersionQ;
-                    break;
-                case CorrectionLevel.H:
-                    versionList = VersionH;
-                    break;
-            }
+            var versionList = Version[cLevel];
 
             var b1 = "11101100";
             var b2 = "00010001";
@@ -305,25 +289,9 @@ namespace QRCodeEncoder
         /// </summary>
         private int GetQRVersion(int length, CorrectionLevel cLevel)
         {
-            List<int> versionList;
-            switch (cLevel)
-            {
-                case CorrectionLevel.L:
-                    versionList = VersionL;
-                    break;
-                case CorrectionLevel.M:
-                default:
-                    versionList = VersionM;
-                    break;
-                case CorrectionLevel.Q:
-                    versionList = VersionQ;
-                    break;
-                case CorrectionLevel.H:
-                    versionList = VersionH;
-                    break;
-            }
+            var versionList = Version[cLevel];
 
-            for (int i = 0; i < versionList.Count; i++)
+            for (int i = 0; i < versionList.Length; i++)
             {
                 if (length < versionList[i]) return i + 1;
             }
@@ -364,61 +332,19 @@ namespace QRCodeEncoder
         /// <summary>
         /// Количество блоков
         /// </summary>
-        private int GetBlocks(int ver, CorrectionLevel cLevel)
-        {
-            List<int> blocksList;
-            switch (cLevel)
-            {
-                case CorrectionLevel.L:
-                    blocksList = BlocksL;
-                    break;
-                case CorrectionLevel.M:
-                default:
-                    blocksList = BlocksM;
-                    break;
-                case CorrectionLevel.Q:
-                    blocksList = BlocksQ;
-                    break;
-                case CorrectionLevel.H:
-                    blocksList = BlocksH;
-                    break;
-            }
-
-            return blocksList[ver - 1];
-        }
+        private int GetBlocks(int ver, CorrectionLevel cLevel) => Blocks[cLevel][ver - 1];
 
         /// <summary>
         /// Количество байтов коррекции на один блок
         /// </summary>
-        private int GetCorrectionBytesCount(int ver, CorrectionLevel cLevel)
-        {
-            List<int> correctionBytesCount;
-            switch (cLevel)
-            {
-                case CorrectionLevel.L:
-                    correctionBytesCount = CorrectionBytesCountL;
-                    break;
-                case CorrectionLevel.M:
-                default:
-                    correctionBytesCount = CorrectionBytesCountM;
-                    break;
-                case CorrectionLevel.Q:
-                    correctionBytesCount = CorrectionBytesCountQ;
-                    break;
-                case CorrectionLevel.H:
-                    correctionBytesCount = CorrectionBytesCountH;
-                    break;
-            }
-
-            return correctionBytesCount[ver - 1];
-        }
+        private int GetCorrectionBytesCount(int ver, CorrectionLevel cLevel) => CorrectionBytesCount[cLevel][ver - 1];
 
         #region Data
 
         /// <summary>
         /// Поле Галуа
         /// </summary>
-        public static readonly byte[] GaluaField = new byte[]
+        private static readonly byte[] GaluaField = new byte[]
         {
             1,2,4,8,16,32,64,128,29,58,116,232,205,135,19,38,
             76,152,45,90,180,117,234,201,143,3,6,12,24,48,96,192,
@@ -441,7 +367,7 @@ namespace QRCodeEncoder
         /// <summary>
         /// Обратное поле Галуа
         /// </summary>
-        public static readonly byte[] GaluaFieldReverse = new byte[]
+        private static readonly byte[] GaluaFieldReverse = new byte[]
         {
             0,0,1,25,2,50,26,198,3,223,51,238,27,104,199,75,
             4,100,224,14,52,141,239,129,28,193,105,248,200,8,76,113,
@@ -464,159 +390,72 @@ namespace QRCodeEncoder
         /// <summary>
         /// Генирирующие многочлены
         /// </summary>
-        public static readonly Dictionary<int, byte[]> Polynomials = new Dictionary<int, byte[]>
+        private static readonly Dictionary<int, byte[]> Polynomials = new Dictionary<int, byte[]>
         {
-            {7,new byte[]{87,229,146,149,238,102,21}},
-            {10,new byte[]{251,67,46,61,118,70,64,94,32,45}},
-            {13,new byte[]{74,152,176,100,86,100,106,104,130,218,206,140,78}},
-            {15,new byte[]{8,183,61,91,202,37,51,58,58,237,140,124,5,99,105}},
-            {16,new byte[]{120,104,107,109,102,161,76,3,91,191,147,169,182,194,225,120}},
-            {17,new byte[]{43,139,206,78,43,239,123,206,214,147,24,99,150,39,243,163,136}},
-            {18,new byte[]{215,234,158,94,184,97,118,170,79,187,152,148,252,179,5,98,96,153}},
-            {20,new byte[]{17,60,79,50,61,163,26,187,202,180,221,225,83,239,156,164,212,212,188,190}},
-            {22,new byte[]{210,171,247,242,93,230,14,109,221,53,200,74,8,172,98,80,219,134,160,105,165,231}},
-            {24,new byte[]{229,121,135,48,211,117,251,126,159,180,169,152,192,226,228,218,111,0,117,232,87,96,227,21}},
-            {26,new byte[]{173,125,158,2,103,182,118,17,145,201,111,28,165,53,161,21,245,142,13,102,48,227,153,145,218,70}},
-            {28,new byte[]{168,223,200,104,224,234,108,180,110,190,195,147,205,27,232,201,21,43,245,87,42,195,212,119,242,37,9,123}},
-            {30,new byte[]{41,173,145,152,216,31,179,182,50,48,110,86,239,96,222,125,42,173,226,193,224,130,156,37,251,216,238,40,192,180}},
+            { 7,  new byte[] {87,229,146,149,238,102,21}},
+            { 10, new byte[] {251,67,46,61,118,70,64,94,32,45}},
+            { 13, new byte[] {74,152,176,100,86,100,106,104,130,218,206,140,78}},
+            { 15, new byte[] {8,183,61,91,202,37,51,58,58,237,140,124,5,99,105}},
+            { 16, new byte[] {120,104,107,109,102,161,76,3,91,191,147,169,182,194,225,120}},
+            { 17, new byte[] {43,139,206,78,43,239,123,206,214,147,24,99,150,39,243,163,136}},
+            { 18, new byte[] {215,234,158,94,184,97,118,170,79,187,152,148,252,179,5,98,96,153}},
+            { 20, new byte[] {17,60,79,50,61,163,26,187,202,180,221,225,83,239,156,164,212,212,188,190}},
+            { 22, new byte[] {210,171,247,242,93,230,14,109,221,53,200,74,8,172,98,80,219,134,160,105,165,231}},
+            { 24, new byte[] {229,121,135,48,211,117,251,126,159,180,169,152,192,226,228,218,111,0,117,232,87,96,227,21}},
+            { 26, new byte[] {173,125,158,2,103,182,118,17,145,201,111,28,165,53,161,21,245,142,13,102,48,227,153,145,218,70}},
+            { 28, new byte[] {168,223,200,104,224,234,108,180,110,190,195,147,205,27,232,201,21,43,245,87,42,195,212,119,242,37,9,123}},
+            { 30, new byte[] {41,173,145,152,216,31,179,182,50,48,110,86,239,96,222,125,42,173,226,193,224,130,156,37,251,216,238,40,192,180}},
         };
 
         /// <summary>
-        /// Количество байтов коррекции на один блок, уровень коррекции L
+        /// Количество байтов коррекции на один блок
         /// </summary>
-        public static readonly List<int> CorrectionBytesCountL = new List<int>
+        private static readonly Dictionary<CorrectionLevel, int[]> CorrectionBytesCount = new Dictionary<CorrectionLevel, int[]>
         {
-            7,10,15,20,26,18,20,24,30,18,
-            20,24,26,30,22,24,28,30,28,28,
-            28,28,30,30,26,28,30,30,30,30,
-            30,30,30,30,30,30,30,30,30,30,
+            { CorrectionLevel.L, new [] { 7,10,15,20,26,18,20,24,30,18,20,24,26,30,22,24,28,30,28,28,28,28,30,30,26,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30 } },
+            { CorrectionLevel.M, new [] { 10,16,26,18,24,16,18,22,22,26,30,22,22,24,24,28,28,26,26,26,26,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28 } },
+            { CorrectionLevel.Q, new [] { 13,22,18,26,18,24,18,22,20,24,28,26,24,20,30,24,28,28,26,30,28,30,30,30,30,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30 } },
+            { CorrectionLevel.H, new [] { 17,28,22,16,22,28,26,26,24,28,24,28,22,24,24,30,28,28,26,28,30,24,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30 } }
         };
 
         /// <summary>
-        /// Количество байтов коррекции на один блок, уровень коррекции M
+        /// Количество блоков по номеру версии
         /// </summary>
-        public static readonly List<int> CorrectionBytesCountM = new List<int>
+        private static readonly Dictionary<CorrectionLevel, int[]> Blocks = new Dictionary<CorrectionLevel, int[]>
         {
-            10,16,26,18,24,16,18,22,22,26,
-            30,22,22,24,24,28,28,26,26,26,
-            26,28,28,28,28,28,28,28,28,28,
-            28,28,28,28,28,28,28,28,28,28,
+            { CorrectionLevel.L, new [] { 1,1,1,1,1,2,2,2,2,4,4,4,4,4,6,6,6,6,7,8,8,9,9,10,12,12,12,13,14,15,16,17,18,19,19,20,21,22,24,25 } },
+            { CorrectionLevel.M, new [] { 1,1,1,2,2,4,4,4,5,5,5,8,9,9,10,10,11,13,14,16,17,17,18,20,21,23,25,26,28,29,31,33,35,37,38,40,43,45,47,49 } },
+            { CorrectionLevel.Q, new [] { 1,1,2,2,4,4,6,6,8,8,8,10,12,16,12,17,16,18,21,20,23,23,25,27,29,34,34,35,38,40,43,45,48,51,53,56,59,62,65,68 } },
+            { CorrectionLevel.H, new [] { 1,1,2,4,4,4,5,6,8,8,11,11,16,16,18,16,19,21,25,25,25,34,30,32,35,37,40,42,45,48,51,54,57,60,63,66,70,74,77,81 } }
         };
 
         /// <summary>
-        /// Количество байтов коррекции на один блок, уровень коррекции Q
+        /// Максимальное количество информации по номеру версии
         /// </summary>
-        public static readonly List<int> CorrectionBytesCountQ = new List<int>
+        private static readonly Dictionary<CorrectionLevel, int[]> Version = new Dictionary<CorrectionLevel, int[]>
         {
-            13,22,18,26,18,24,18,22,20,24,
-            28,26,24,20,30,24,28,28,26,30,
-            28,30,30,30,30,28,30,30,30,30,
-            30,30,30,30,30,30,30,30,30,30,
-        };
-
-        /// <summary>
-        /// Количество байтов коррекции на один блок, уровень коррекции H
-        /// </summary>
-        public static readonly List<int> CorrectionBytesCountH = new List<int>
-        {
-            17,28,22,16,22,28,26,26,24,28,
-            24,28,22,24,24,30,28,28,26,28,
-            30,24,30,30,30,30,30,30,30,30,
-            30,30,30,30,30,30,30,30,30,30,
-        };
-
-        /// <summary>
-        /// Количество блоков по номеру версии, уровень коррекции L
-        /// </summary>
-        public static readonly List<int> BlocksL = new List<int>
-        {
-            1,1,1,1,1,2,2,2,2,4,
-            4,4,4,4,6,6,6,6,7,8,
-            8,9,9,10,12,12,12,13,14,15,
-            16,17,18,19,19,20,21,22,24,25,
-        };
-
-        /// <summary>
-        /// Количество блоков по номеру версии, уровень коррекции M
-        /// </summary>
-        public static readonly List<int> BlocksM = new List<int>
-        {
-            1,1,1,2,2,4,4,4,5,5,
-            5,8,9,9,10,10,11,13,14,16,
-            17,17,18,20,21,23,25,26,28,29,
-            31,33,35,37,38,40,43,45,47,49,
-        };
-
-        /// <summary>
-        /// Количество блоков по номеру версии, уровень коррекции Q
-        /// </summary>
-        public static readonly List<int> BlocksQ = new List<int>
-        {
-            1,1,2,2,4,4,6,6,8,8,
-            8,10,12,16,12,17,16,18,21,20,
-            23,23,25,27,29,34,34,35,38,40,
-            43,45,48,51,53,56,59,62,65,68,
-        };
-
-        /// <summary>
-        /// Количество блоков по номеру версии, уровень коррекции H
-        /// </summary>
-        public static readonly List<int> BlocksH = new List<int>
-        {
-            1,1,2,4,4,4,5,6,8,8,
-            11,11,16,16,18,16,19,21,25,25,
-            25,34,30,32,35,37,40,42,45,48,
-            51,54,57,60,63,66,70,74,77,81,
-        };
-
-        /// <summary>
-        /// Максимальное количество информации по номеру версии, уровень коррекции L
-        /// </summary>
-        public static readonly List<int> VersionL = new List<int>
-        {
-            152,272,440,640,864,1088,1248,1552,1856,2192,
-            2592,2960,3424,3688,4184,4712,5176,5768,6360,6888,
-            7456,8048,8752,9392,10208,10960,11744,12248,13048,13880,
-            14744,15640,16568,17528,18448,19472,20528,21616,22496,23648,
-        };
-
-        /// <summary>
-        /// Максимальное количество информации по номеру версии, уровень коррекции M
-        /// </summary>
-        public static readonly List<int> VersionM = new List<int>
-        {
-            128,224,352,512,688,864,992,1232,1456,1728,
-            2032,2320,2672,2920,3320,3624,4056,4504,5016,5352,
-            5712,6256,6880,7312,8000,8496,9024,9544,10136,10984,
-            11640,12328,13048,13800,14496,15312,15936,16816,17728,18672,
-        };
-
-        /// <summary>
-        /// Максимальное количество информации по номеру версии, уровень коррекции Q
-        /// </summary>
-        public static readonly List<int> VersionQ = new List<int>
-        {
-            104,176,272,384,496,608,704,880,1056,1232,
-            1440,1648,1952,2088,2360,2600,2936,3176,3560,3880,
-            4096,4544,4912,5312,5744,6032,6464,6968,7288,7880,
-            8264,8920,9368,9848,10288,10832,11408,12016,12656,13328,
-        };
-
-        /// <summary>
-        /// Максимальное количество информации по номеру версии, уровень коррекции H
-        /// </summary>
-        public static readonly List<int> VersionH = new List<int>
-        {
-            72,128,208,288,368,480,528,688,800,976,
-            1120,1264,1440,1576,1784,2024,2264,2504,2728,3080,
-            3248,3536,3712,4112,4304,4768,5024,5288,5608,5960,
-            6344,6760,7208,7688,7888,8432,8768,9136,9776,10208,
+            { CorrectionLevel.L, new [] { 152,272,440,640,864,1088,1248,1552,1856,2192,
+                                          2592,2960,3424,3688,4184,4712,5176,5768,6360,6888,
+                                          7456,8048,8752,9392,10208,10960,11744,12248,13048,13880,
+                                          14744,15640,16568,17528,18448,19472,20528,21616,22496,23648 } },
+            { CorrectionLevel.M, new [] { 128,224,352,512,688,864,992,1232,1456,1728,
+                                          2032,2320,2672,2920,3320,3624,4056,4504,5016,5352,
+                                          5712,6256,6880,7312,8000,8496,9024,9544,10136,10984,
+                                          11640,12328,13048,13800,14496,15312,15936,16816,17728,18672 } },
+            { CorrectionLevel.Q, new [] { 104,176,272,384,496,608,704,880,1056,1232,
+                                          1440,1648,1952,2088,2360,2600,2936,3176,3560,3880,
+                                          4096,4544,4912,5312,5744,6032,6464,6968,7288,7880,
+                                          8264,8920,9368,9848,10288,10832,11408,12016,12656,13328 } },
+            { CorrectionLevel.H, new [] { 72,128,208,288,368,480,528,688,800,976,
+                                          1120,1264,1440,1576,1784,2024,2264,2504,2728,3080,
+                                          3248,3536,3712,4112,4304,4768,5024,5288,5608,5960,
+                                          6344,6760,7208,7688,7888,8432,8768,9136,9776,10208 } },
         };
 
         /// <summary>
         /// Значения символов в буквенно-цифровом кодировании
         /// </summary>
-        public static readonly Dictionary<char, int> AlfanumericCodes = new Dictionary<char, int>
+        private static readonly Dictionary<char, int> AlfanumericCodes = new Dictionary<char, int>
         {
             { '0', 0 },
             { '1', 1 },
