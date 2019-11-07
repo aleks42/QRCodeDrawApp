@@ -23,12 +23,12 @@ namespace QRCode
             using (var background = assembly.GetManifestResourceStream("QRCode.back5.jpg"))
             {
                 var encoder = new Encoder();
-                var data = encoder.Encode(entry.Text, CorrectionLevel.H);
+                var encoderRes = encoder.Encode(entry.Text, CorrectionLevel.H);
 
                 var renderer = new Renderer();
-                var stream = renderer.Draw(data.Data, data.Version, CorrectionLevel.H, background);
+                var qrCodeImgStream = renderer.Draw(encoderRes.Data, encoderRes.Version, CorrectionLevel.H, background);
                 
-                img.Source = ImageSource.FromStream(() => stream);
+                img.Source = ImageSource.FromStream(() => qrCodeImgStream);
             }
         }
     }

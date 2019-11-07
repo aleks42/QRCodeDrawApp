@@ -48,7 +48,7 @@ namespace QRCodeEncoder
                     {
                         if (img[x, y] == 0)
                         {
-                            var markers = Encoder.Markers[ver - 1];
+                            var markers = Markers[ver - 1];
 
                             if (x < 6 && y < 6
                                 || x < 6 && y > img.GetUpperBound(0) - 6
@@ -97,9 +97,11 @@ namespace QRCodeEncoder
             }
         }
 
+        //
+
         private byte[,] GetQRCodeArray(byte[] data, int ver, CorrectionLevel correctionLevel)
         {
-            var size = Encoder.Markers[ver - 1].Last() + 7;
+            var size = Markers[ver - 1].Last() + 7;
             var img = new byte[size, size];
             for (int y = 0; y < size; y++)
             {
@@ -133,6 +135,9 @@ namespace QRCodeEncoder
             return bestMask;
         }
 
+        /// <summary>
+        /// Выбор лучшей маски
+        /// </summary>
         private int MaskScoring(byte[,] img) => MaskScoring1(img) + MaskScoring2(img) + MaskScoring3(img) + MaskScoring4(img);
         private int MaskScoring1(byte[,] img)
         {
@@ -269,6 +274,9 @@ namespace QRCodeEncoder
             return 2 * Math.Abs((int)(100 * sum / Math.Pow(img.GetUpperBound(0) + 1, 2) - 50));
         }
 
+        /// <summary>
+        /// Добавление данных
+        /// </summary>
         private byte[,] AddData(byte[] data, byte[,] img1, int maskNum)
         {
             var img = img1.Clone() as byte[,];
@@ -328,6 +336,9 @@ namespace QRCodeEncoder
             return img;
         }
 
+        /// <summary>
+        /// Код маски и уровня коррекции
+        /// </summary>
         private byte[,] AddCorrectionAndMaskCode(byte[,] img1, int maskNum, CorrectionLevel correctionLevel)
         {
             var img = img1.Clone() as byte[,];
@@ -336,17 +347,17 @@ namespace QRCodeEncoder
             switch (correctionLevel)
             {
                 case CorrectionLevel.L:
-                    maskCodes = Encoder.MaskCodesL;
+                    maskCodes = MaskCodesL;
                     break;
                 case CorrectionLevel.M:
                 default:
-                    maskCodes = Encoder.MaskCodesM;
+                    maskCodes = MaskCodesM;
                     break;
                 case CorrectionLevel.Q:
-                    maskCodes = Encoder.MaskCodesQ;
+                    maskCodes = MaskCodesQ;
                     break;
                 case CorrectionLevel.H:
-                    maskCodes = Encoder.MaskCodesH;
+                    maskCodes = MaskCodesH;
                     break;
             }
 
@@ -381,11 +392,14 @@ namespace QRCodeEncoder
             return img;
         }
 
+        /// <summary>
+        /// Код версии
+        /// </summary>
         private void AddVersionCode(byte[,] img, int ver)
         {
             if (ver >= 7)
             {
-                var varCode = Encoder.VersionCodes[ver - 1];
+                var varCode = VersionCodes[ver - 1];
 
                 var counter = 0;
                 var dy = img.GetUpperBound(0) - 10;
@@ -402,6 +416,9 @@ namespace QRCodeEncoder
             }
         }
 
+        /// <summary>
+        /// Полосы синхронизации
+        /// </summary>
         private void AddSyncLines(byte[,] img)
         {
             for (int i = 8; i < img.GetUpperBound(0) - 7; i++)
@@ -419,6 +436,9 @@ namespace QRCodeEncoder
             }
         }
 
+        /// <summary>
+        /// Поисковые узоры
+        /// </summary>
         private void AddCornerMarks(byte[,] img)
         {
             var mark1 = new byte[8, 8]
@@ -461,6 +481,9 @@ namespace QRCodeEncoder
             DrawBytes(img, mark3, 0, img.GetUpperBound(0) - 7);
         }
 
+        /// <summary>
+        /// Выравнивающие узоры
+        /// </summary>
         private void AddAlignMarks(byte[,] img, int ver)
         {
             var mark = new byte[5, 5]
@@ -472,7 +495,7 @@ namespace QRCodeEncoder
                 { 1, 1, 1, 1, 1 }
             };
 
-            var marks = Encoder.Markers[ver - 1];
+            var marks = Markers[ver - 1];
 
             if (ver == 1)
             {
@@ -524,6 +547,9 @@ namespace QRCodeEncoder
             }
         }
 
+        /// <summary>
+        /// Маска
+        /// </summary>
         private byte AddMaskToModule(byte module, int x, int y, int maskNum)
         {
             var res = 0;
@@ -560,5 +586,163 @@ namespace QRCodeEncoder
             else if (res == 0 && module == 1) module = 0;
             return module;
         }
+
+        #region Data
+
+        /// <summary>
+        /// Расположение выравнивающих узоров по версии
+        /// </summary>
+        public static readonly List<int[]> Markers = new List<int[]>
+        {
+            new int[] { 14 },
+            new int[] { 18 },
+            new int[] { 22 },
+            new int[] { 26 },
+            new int[] { 30 },
+            new int[] { 34 },
+            new int[] { 6, 22, 38 },
+            new int[] { 6, 24, 42 },
+            new int[] { 6, 26, 46 },
+            new int[] { 6, 28, 50 },
+            new int[] { 6, 30, 54 },
+            new int[] { 6, 32, 58 },
+            new int[] { 6, 34, 62 },
+            new int[] { 6, 26, 46, 66 },
+            new int[] { 6, 26, 48, 70 },
+            new int[] { 6, 26, 50, 74 },
+            new int[] { 6, 30, 54, 78 },
+            new int[] { 6, 30, 56, 82 },
+            new int[] { 6, 30, 58, 86 },
+            new int[] { 6, 34, 62, 90 },
+            new int[] { 6, 28, 50, 72, 94 },
+            new int[] { 6, 26, 50, 74, 98 },
+            new int[] { 6, 30, 54, 78, 102 },
+            new int[] { 6, 28, 54, 80, 106 },
+            new int[] { 6, 32, 58, 84, 110 },
+            new int[] { 6, 30, 58, 86, 114 },
+            new int[] { 6, 34, 62, 90, 118 },
+            new int[] { 6, 26, 50, 74, 98, 122 },
+            new int[] { 6, 30, 54, 78, 102, 126 },
+            new int[] { 6, 26, 52, 78, 104, 130 },
+            new int[] { 6, 30, 56, 82, 108, 134 },
+            new int[] { 6, 34, 60, 86, 112, 138 },
+            new int[] { 6, 30, 58, 86, 114, 142 },
+            new int[] { 6, 34, 62, 90, 118, 146 },
+            new int[] { 6, 30, 54, 78, 102, 126, 150 },
+            new int[] { 6, 24, 50, 76, 102, 128, 154 },
+            new int[] { 6, 28, 54, 80, 106, 132, 158 },
+            new int[] { 6, 32, 58, 84, 110, 136, 162 },
+            new int[] { 6, 26, 54, 82, 110, 138, 166 },
+            new int[] { 6, 30, 58, 86, 114, 142, 170 },
+        };
+
+        /// <summary>
+        /// Код маски и уровня коррекции, уровень коррекции L
+        /// </summary>
+        public static readonly List<string> MaskCodesL = new List<string>
+        {
+            "111011111000100",
+            "111001011110011",
+            "111110110101010",
+            "111100010011101",
+            "110011000101111",
+            "110001100011000",
+            "110110001000001",
+            "110100101110110"
+        };
+
+        /// <summary>
+        /// Код маски и уровня коррекции, уровень коррекции M
+        /// </summary>
+        public static readonly List<string> MaskCodesM = new List<string>
+        {
+            "101010000010010",
+            "101000100100101",
+            "101111001111100",
+            "101101101001011",
+            "100010111111001",
+            "100000011001110",
+            "100111110010111",
+            "100101010100000"
+        };
+
+        /// <summary>
+        /// Код маски и уровня коррекции, уровень коррекции Q
+        /// </summary>
+        public static readonly List<string> MaskCodesQ = new List<string>
+        {
+            "011010101011111",
+            "011000001101000",
+            "011111100110001",
+            "011101000000110",
+            "010010010110100",
+            "010000110000011",
+            "010111011011010",
+            "010101111101101"
+        };
+
+        /// <summary>
+        /// Код маски и уровня коррекции, уровень коррекции H
+        /// </summary>
+        public static readonly List<string> MaskCodesH = new List<string>
+        {
+            "001011010001001",
+            "001001110111110",
+            "001110011100111",
+            "001100111010000",
+            "000011101100010",
+            "000001001010101",
+            "000110100001100",
+            "000100000111011"
+        };
+
+        /// <summary>
+        /// Коды версий
+        /// </summary>
+        public static readonly List<string> VersionCodes = new List<string>
+        {
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "000010011110100110",
+            "010001011100111000",
+            "110111011000000100",
+            "101001111110000000",
+            "001111111010111100",
+            "001101100100011010",
+            "101011100000100110",
+            "110101000110100010",
+            "010011000010011110",
+            "011100010001011100",
+            "111010010101100000",
+            "100100110011100100",
+            "000010110111011000",
+            "000000101001111110",
+            "100110101101000010",
+            "111000001011000110",
+            "011110001111111010",
+            "001101001101100100",
+            "101011001001011000",
+            "110101101111011100",
+            "010011101011100000",
+            "010001110101000110",
+            "110111110001111010",
+            "101001010111111110",
+            "001111010011000010",
+            "101000011000101101",
+            "001110011100010001",
+            "010000111010010101",
+            "110110111110101001",
+            "110100100000001111",
+            "010010100100110011",
+            "001100000010110111",
+            "101010000110001011",
+            "111001000100010101",
+        };
+
+        #endregion Data
     }
 }

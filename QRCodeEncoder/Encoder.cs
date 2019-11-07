@@ -10,6 +10,9 @@ namespace QRCodeEncoder
 {
     public class Encoder
     {
+        /// <summary>
+        /// Способ кодирования
+        /// </summary>
         public enum EncodingType
         {
             /// <summary>
@@ -177,6 +180,11 @@ namespace QRCodeEncoder
             return new EncoderRes { Data = blocksJoin, Version = ver };
         }
 
+        //
+
+        /// <summary>
+        /// Алгоритм получения байтов коррекции
+        /// </summary>
         private static byte[] GetCorrectionBytes(byte[] src, byte[] polynomial)
         {
             var correctionArray = new byte[Math.Max(src.Length, polynomial.Length)];
@@ -210,8 +218,9 @@ namespace QRCodeEncoder
             return correctionArray;
         }
 
-        //
-
+        /// <summary>
+        /// Определение способа кодирования
+        /// </summary>
         private EncodingType GetEncodingType(string str)
         {
             if (str.All(x => char.IsDigit(x)))
@@ -228,6 +237,9 @@ namespace QRCodeEncoder
             }
         }
 
+        /// <summary>
+        /// Цифровое кодирование
+        /// </summary>
         private string EncodeNumeric(string str)
         {
             var res = new StringBuilder();
@@ -254,6 +266,9 @@ namespace QRCodeEncoder
             return res.ToString();
         }
 
+        /// <summary>
+        /// Буквенно-цифровое кодирование
+        /// </summary>
         private string EncodeAlfanumeric(string str)
         {
             var res = new StringBuilder();
@@ -276,12 +291,18 @@ namespace QRCodeEncoder
             return res.ToString();
         }
 
+        /// <summary>
+        /// Побайтовое кодирование
+        /// </summary>
         private string EncodeByte(string str)
         {
             var bytes = Encoding.UTF8.GetBytes(str);
             return string.Join("", bytes.Select(x => Convert.ToString(x, 2).PadLeft(8, '0')).ToArray());
         }
 
+        /// <summary>
+        /// Выбор версии
+        /// </summary>
         private int GetQRVersion(int length, CorrectionLevel cLevel)
         {
             List<int> versionList;
@@ -310,6 +331,9 @@ namespace QRCodeEncoder
             throw new ArgumentException(nameof(length));
         }
 
+        /// <summary>
+        /// Длина поля количества данных
+        /// </summary>
         private string GetDataAmount(int ver, int length, EncodingType encodingType)
         {
             int dataLen;
@@ -337,6 +361,9 @@ namespace QRCodeEncoder
             }
         }
 
+        /// <summary>
+        /// Количество блоков
+        /// </summary>
         private int GetBlocks(int ver, CorrectionLevel cLevel)
         {
             List<int> blocksList;
@@ -360,6 +387,9 @@ namespace QRCodeEncoder
             return blocksList[ver - 1];
         }
 
+        /// <summary>
+        /// Количество байтов коррекции на один блок
+        /// </summary>
         private int GetCorrectionBytesCount(int ver, CorrectionLevel cLevel)
         {
             List<int> correctionBytesCount;
@@ -384,6 +414,10 @@ namespace QRCodeEncoder
         }
 
         #region Data
+
+        /// <summary>
+        /// Поле Галуа
+        /// </summary>
         public static readonly byte[] GaluaField = new byte[]
         {
             1,2,4,8,16,32,64,128,29,58,116,232,205,135,19,38,
@@ -404,6 +438,9 @@ namespace QRCodeEncoder
             44,88,176,125,250,233,207,131,27,54,108,216,173,71,142,1
         };
 
+        /// <summary>
+        /// Обратное поле Галуа
+        /// </summary>
         public static readonly byte[] GaluaFieldReverse = new byte[]
         {
             0,0,1,25,2,50,26,198,3,223,51,238,27,104,199,75,
@@ -424,6 +461,9 @@ namespace QRCodeEncoder
             79,174,213,233,230,231,173,232,116,214,244,234,168,80,88,175
         };
 
+        /// <summary>
+        /// Генирирующие многочлены
+        /// </summary>
         public static readonly Dictionary<int, byte[]> Polynomials = new Dictionary<int, byte[]>
         {
             {7,new byte[]{87,229,146,149,238,102,21}},
@@ -441,6 +481,9 @@ namespace QRCodeEncoder
             {30,new byte[]{41,173,145,152,216,31,179,182,50,48,110,86,239,96,222,125,42,173,226,193,224,130,156,37,251,216,238,40,192,180}},
         };
 
+        /// <summary>
+        /// Количество байтов коррекции на один блок, уровень коррекции L
+        /// </summary>
         public static readonly List<int> CorrectionBytesCountL = new List<int>
         {
             7,10,15,20,26,18,20,24,30,18,
@@ -449,6 +492,9 @@ namespace QRCodeEncoder
             30,30,30,30,30,30,30,30,30,30,
         };
 
+        /// <summary>
+        /// Количество байтов коррекции на один блок, уровень коррекции M
+        /// </summary>
         public static readonly List<int> CorrectionBytesCountM = new List<int>
         {
             10,16,26,18,24,16,18,22,22,26,
@@ -457,6 +503,9 @@ namespace QRCodeEncoder
             28,28,28,28,28,28,28,28,28,28,
         };
 
+        /// <summary>
+        /// Количество байтов коррекции на один блок, уровень коррекции Q
+        /// </summary>
         public static readonly List<int> CorrectionBytesCountQ = new List<int>
         {
             13,22,18,26,18,24,18,22,20,24,
@@ -465,6 +514,9 @@ namespace QRCodeEncoder
             30,30,30,30,30,30,30,30,30,30,
         };
 
+        /// <summary>
+        /// Количество байтов коррекции на один блок, уровень коррекции H
+        /// </summary>
         public static readonly List<int> CorrectionBytesCountH = new List<int>
         {
             17,28,22,16,22,28,26,26,24,28,
@@ -473,6 +525,9 @@ namespace QRCodeEncoder
             30,30,30,30,30,30,30,30,30,30,
         };
 
+        /// <summary>
+        /// Количество блоков по номеру версии, уровень коррекции L
+        /// </summary>
         public static readonly List<int> BlocksL = new List<int>
         {
             1,1,1,1,1,2,2,2,2,4,
@@ -481,6 +536,9 @@ namespace QRCodeEncoder
             16,17,18,19,19,20,21,22,24,25,
         };
 
+        /// <summary>
+        /// Количество блоков по номеру версии, уровень коррекции M
+        /// </summary>
         public static readonly List<int> BlocksM = new List<int>
         {
             1,1,1,2,2,4,4,4,5,5,
@@ -489,6 +547,9 @@ namespace QRCodeEncoder
             31,33,35,37,38,40,43,45,47,49,
         };
 
+        /// <summary>
+        /// Количество блоков по номеру версии, уровень коррекции Q
+        /// </summary>
         public static readonly List<int> BlocksQ = new List<int>
         {
             1,1,2,2,4,4,6,6,8,8,
@@ -497,6 +558,9 @@ namespace QRCodeEncoder
             43,45,48,51,53,56,59,62,65,68,
         };
 
+        /// <summary>
+        /// Количество блоков по номеру версии, уровень коррекции H
+        /// </summary>
         public static readonly List<int> BlocksH = new List<int>
         {
             1,1,2,4,4,4,5,6,8,8,
@@ -505,6 +569,9 @@ namespace QRCodeEncoder
             51,54,57,60,63,66,70,74,77,81,
         };
 
+        /// <summary>
+        /// Максимальное количество информации по номеру версии, уровень коррекции L
+        /// </summary>
         public static readonly List<int> VersionL = new List<int>
         {
             152,272,440,640,864,1088,1248,1552,1856,2192,
@@ -513,7 +580,9 @@ namespace QRCodeEncoder
             14744,15640,16568,17528,18448,19472,20528,21616,22496,23648,
         };
 
-
+        /// <summary>
+        /// Максимальное количество информации по номеру версии, уровень коррекции M
+        /// </summary>
         public static readonly List<int> VersionM = new List<int>
         {
             128,224,352,512,688,864,992,1232,1456,1728,
@@ -522,6 +591,9 @@ namespace QRCodeEncoder
             11640,12328,13048,13800,14496,15312,15936,16816,17728,18672,
         };
 
+        /// <summary>
+        /// Максимальное количество информации по номеру версии, уровень коррекции Q
+        /// </summary>
         public static readonly List<int> VersionQ = new List<int>
         {
             104,176,272,384,496,608,704,880,1056,1232,
@@ -530,6 +602,9 @@ namespace QRCodeEncoder
             8264,8920,9368,9848,10288,10832,11408,12016,12656,13328,
         };
 
+        /// <summary>
+        /// Максимальное количество информации по номеру версии, уровень коррекции H
+        /// </summary>
         public static readonly List<int> VersionH = new List<int>
         {
             72,128,208,288,368,480,528,688,800,976,
@@ -538,6 +613,9 @@ namespace QRCodeEncoder
             6344,6760,7208,7688,7888,8432,8768,9136,9776,10208,
         };
 
+        /// <summary>
+        /// Значения символов в буквенно-цифровом кодировании
+        /// </summary>
         public static readonly Dictionary<char, int> AlfanumericCodes = new Dictionary<char, int>
         {
             { '0', 0 },
@@ -589,141 +667,6 @@ namespace QRCodeEncoder
             { ':', 44 },
         };
 
-        public static readonly List<int[]> Markers = new List<int[]>
-        {
-            new int[] { 14 },
-            new int[] { 18 },
-            new int[] { 22 },
-            new int[] { 26 },
-            new int[] { 30 },
-            new int[] { 34 },
-            new int[] { 6, 22, 38 },
-            new int[] { 6, 24, 42 },
-            new int[] { 6, 26, 46 },
-            new int[] { 6, 28, 50 },
-            new int[] { 6, 30, 54 },
-            new int[] { 6, 32, 58 },
-            new int[] { 6, 34, 62 },
-            new int[] { 6, 26, 46, 66 },
-            new int[] { 6, 26, 48, 70 },
-            new int[] { 6, 26, 50, 74 },
-            new int[] { 6, 30, 54, 78 },
-            new int[] { 6, 30, 56, 82 },
-            new int[] { 6, 30, 58, 86 },
-            new int[] { 6, 34, 62, 90 },
-            new int[] { 6, 28, 50, 72, 94 },
-            new int[] { 6, 26, 50, 74, 98 },
-            new int[] { 6, 30, 54, 78, 102 },
-            new int[] { 6, 28, 54, 80, 106 },
-            new int[] { 6, 32, 58, 84, 110 },
-            new int[] { 6, 30, 58, 86, 114 },
-            new int[] { 6, 34, 62, 90, 118 },
-            new int[] { 6, 26, 50, 74, 98, 122 },
-            new int[] { 6, 30, 54, 78, 102, 126 },
-            new int[] { 6, 26, 52, 78, 104, 130 },
-            new int[] { 6, 30, 56, 82, 108, 134 },
-            new int[] { 6, 34, 60, 86, 112, 138 },
-            new int[] { 6, 30, 58, 86, 114, 142 },
-            new int[] { 6, 34, 62, 90, 118, 146 },
-            new int[] { 6, 30, 54, 78, 102, 126, 150 },
-            new int[] { 6, 24, 50, 76, 102, 128, 154 },
-            new int[] { 6, 28, 54, 80, 106, 132, 158 },
-            new int[] { 6, 32, 58, 84, 110, 136, 162 },
-            new int[] { 6, 26, 54, 82, 110, 138, 166 },
-            new int[] { 6, 30, 58, 86, 114, 142, 170 },
-        };
-
-        public static readonly List<string> VersionCodes = new List<string>
-        {
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "000010011110100110",
-            "010001011100111000",
-            "110111011000000100",
-            "101001111110000000",
-            "001111111010111100",
-            "001101100100011010",
-            "101011100000100110",
-            "110101000110100010",
-            "010011000010011110",
-            "011100010001011100",
-            "111010010101100000",
-            "100100110011100100",
-            "000010110111011000",
-            "000000101001111110",
-            "100110101101000010",
-            "111000001011000110",
-            "011110001111111010",
-            "001101001101100100",
-            "101011001001011000",
-            "110101101111011100",
-            "010011101011100000",
-            "010001110101000110",
-            "110111110001111010",
-            "101001010111111110",
-            "001111010011000010",
-            "101000011000101101",
-            "001110011100010001",
-            "010000111010010101",
-            "110110111110101001",
-            "110100100000001111",
-            "010010100100110011",
-            "001100000010110111",
-            "101010000110001011",
-            "111001000100010101",
-        };
-
-        public static readonly List<string> MaskCodesL = new List<string>
-        {
-            "111011111000100",
-            "111001011110011",
-            "111110110101010",
-            "111100010011101",
-            "110011000101111",
-            "110001100011000",
-            "110110001000001",
-            "110100101110110"
-        };
-
-        public static readonly List<string> MaskCodesM = new List<string>
-        {
-            "101010000010010",
-            "101000100100101",
-            "101111001111100",
-            "101101101001011",
-            "100010111111001",
-            "100000011001110",
-            "100111110010111",
-            "100101010100000"
-        };
-
-        public static readonly List<string> MaskCodesQ = new List<string>
-        {
-            "011010101011111",
-            "011000001101000",
-            "011111100110001",
-            "011101000000110",
-            "010010010110100",
-            "010000110000011",
-            "010111011011010",
-            "010101111101101"
-        };
-
-        public static readonly List<string> MaskCodesH = new List<string>
-        {
-            "001011010001001",
-            "001001110111110",
-            "001110011100111",
-            "001100111010000",
-            "000011101100010",
-            "000001001010101",
-            "000110100001100",
-            "000100000111011"
-        };
         #endregion Data
     }
 }
